@@ -1,0 +1,152 @@
+#include <iostream>
+#include <cstring>
+
+#define MAX_SIZE 100
+
+using namespace std;
+
+class Pila {
+    char data[MAX_SIZE];
+    int top;
+
+    public:
+        Pila() {
+            top = -1;
+        }
+
+        bool Empty() {
+            return (top == -1);
+        }
+
+        bool isFull() {
+            return (top == MAX_SIZE-1);
+        }
+
+        void push(char element) {
+            if(isFull()) {
+                cout<<"Error: Pila overflow"<<endl;
+            } else {
+                data[++top] = element;
+            }
+        }
+
+        char pop() {
+            if(Empty()) {
+                cout<<"Error: Pila underflow"<<endl;
+                return -1;
+            } else {
+                return data[top--];
+            }
+        }
+
+        char peek() {
+            if(Empty()) {
+                cout<<"Error: Pila is empty"<<endl;
+                return -1;
+            } else {
+                return data[top];
+            }
+        }
+};
+
+class List {
+    char data[MAX_SIZE];
+    int size;
+
+    public:
+        List() {
+            size = 0;
+        }
+
+        void agregar(char element) {
+            if(size == MAX_SIZE) {
+                cout<<"Error: List is full"<<endl;
+            } else {
+                data[size++] = element;
+            }
+        }
+
+        void elimina() {
+            if(size == 0) {
+                cout<<"Error: List is empty"<<endl;
+            } else {
+                size--;
+            }
+        }
+
+        void imprimir() {
+            for(int i=0; i<size; i++) {
+                cout<<data[i]<<" ";
+            }
+            cout<<endl;
+        }
+};
+
+bool isOperator(char c) {
+    if(c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int getOperatorPriority(char c) {
+    if(c == '*' || c == '/') {
+        return 2;
+    } else if(c == '+' || c == '-') {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+void infijaAposfija(char infija[], char posfija[]) {
+    Pila Pila;
+    List list;
+    int i = 0;
+    while(infija[i] != '\0') {
+        if(!isOperator(infija[i])) {
+            posfija[strlen(posfija)] = infija[i];
+            posfija[strlen(posfija)] = ' ';
+        } else {
+            if(infija[i] == '(') {
+                Pila.push(infija[i]);
+            } else if(infija[i] == ')') {
+                while(Pila.peek() != '(') {
+                    posfija[strlen(posfija)] = Pila.pop();
+                    posfija[strlen(posfija)] = ' ';
+                }
+                Pila.pop();
+            } else {
+                while(!Pila.Empty() && getOperatorPriority(infija[i]) <= getOperatorPriority(Pila.peek())) {
+                    posfija[strlen(posfija)] = Pila.pop();
+                    posfija[strlen(posfija)] = ' ';
+                }
+                Pila.push(infija[i]);
+            }
+        }
+        i++;
+    }
+
+    while(!Pila.Empty()) {
+        posfija[strlen(posfija)] = Pila.pop();
+        posfija[strlen(posfija)] = ' ';
+    }
+
+    posfija[strlen(posfija)] = '\0';
+}
+
+int main() {
+    char infija[MAX_SIZE];
+    char posfija[MAX_SIZE] = "";
+
+    cout<<"Ingrese una expresion en notacion infija: ";
+    cin>>infija;
+
+    infijaAposfija(infija, posfija);
+
+    cout<<"La expresion en notacion postfija es: ";
+    cout<<posfija<<endl;
+
+    return 0;
+}
